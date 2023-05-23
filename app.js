@@ -1,6 +1,7 @@
 import express from "express";
 import mongoose from "mongoose";
-import authRouter from "./routes/user.js";
+import authRouter from "./routes/auth.js";
+import booksRouter from "./routes/books.js";
 import rateLimit, { MemoryStore } from "express-rate-limit";
 import dotenv from "dotenv";
 dotenv.config();
@@ -40,5 +41,6 @@ const apiLimiter = rateLimit({
 // set rate limit to the whole api
 app.use("/api", apiLimiter);
 app.use("/api/auth", authRouter);
+app.use("/api/books", booksRouter);
 
 export default app;
