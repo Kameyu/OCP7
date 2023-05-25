@@ -1,18 +1,27 @@
 import express from "express";
-// import {} from "../controllers/books.js";
-// import { auth } from "../middleware/auth.js";
+import multerInstance from "../middleware/multer-config.js";
+import auth from "../middleware/auth.js";
+import {
+	getAllBooks,
+	getBestBooks,
+	getBook,
+	sendBook,
+	rateBook,
+	editBook,
+	deleteBook,
+} from "../controllers/books.js";
 
 const booksRouter = express.Router();
 
-// booksRouter.get("/books", null);
-// booksRouter.get("/books/:id", null);
-// booksRouter.get("/bestrating", null);
+booksRouter.get("/", getAllBooks);
+booksRouter.get("/bestrating", getBestBooks);
+booksRouter.get("/:id", getBook);
 
-// booksRouter.post("/books", auth, sharp, mutler, null);
-// booksRouter.post("/books/:id/rating", auth, null)
+booksRouter.post("/", auth, multerInstance, sendBook);
+booksRouter.post("/:id/rating", auth, rateBook)
 
-// booksRouter.put("/books/:id", auth, sharp, mutler, null);
+booksRouter.put("/:id", auth, multerInstance, editBook);
 
-// booksRouter.delete("/books/:id", auth, null);
+booksRouter.delete("/:id", auth, deleteBook);
 
 export default booksRouter;

@@ -1,20 +1,15 @@
 import multer from "multer";
 
-const MIME_TYPES = {
-	"image/jpg": "jpg",
-	"image/jpeg": "jpeg",
-	"image/png": "png"
-};
-
 const storage = multer.diskStorage({
 	destination: (req, file, callback) => {
-		callback(null, 'images'); // dans le dossier "./images"
+		callback(null, "./images");
 	},
 	filename: (req, file, callback) => {
-		const name = file.originalname.replace(' ', '_');
-		const extension = MIME_TYPES[file.mimetype];
-		callback(null, name + Date.now() + '.' + extension);
-	}
+		const newName = Date.now() + '-' + file.originalname.replace(" ", "_");
+		callback(null, newName);
+	},
 });
 
-export default multer({ storage }).single('image');
+const multerInstance = multer({ storage: storage }).single("image");
+
+export default multerInstance;

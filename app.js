@@ -3,6 +3,9 @@ import mongoose from "mongoose";
 import authRouter from "./routes/auth.js";
 import booksRouter from "./routes/books.js";
 import rateLimit, { MemoryStore } from "express-rate-limit";
+import path from "path";
+import { expressSharp, FsAdapter } from "express-sharp";
+import helmet from "helmet"
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -42,5 +45,16 @@ const apiLimiter = rateLimit({
 app.use("/api", apiLimiter);
 app.use("/api/auth", authRouter);
 app.use("/api/books", booksRouter);
+app.use("/images", express.static(path.resolve("./images")));
+
+// Third party programs
+app.use(
+	"/images",
+	expressSharp({
+		imageAdapter: new FsAdapter(path.join(path.resolve("."), "images")),
+	})
+);
+
+app.use(helmet());
 
 export default app;
