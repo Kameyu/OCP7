@@ -12,4 +12,4 @@ MONGODB_SRV=
 * `PORT` : le numéro du port sur lequel l'API doit démarrer
 * `API_SECRET` : le token unique de l'API pour le hachage des mots de passe
 * `MONGODB_SRV` : l'adresse mongodb+srv que vous utiliserez pour votre base de données.
-  * Elle doit être sous la forme suivante : `mongodb+srv://<user>:<password>@adresse-serveur.domaine/`, avec `<user>` et `<password>` étant votre nom d'utilisateur et votre mot de passe.
+  * Elle doit être sous la forme suivante : `mongodb+srv://<user>:<password>@<server>/`, avec `<user>` et `<password>` étant votre nom d'utilisateur et votre mot de passe, et `<server>` étant l'adresse du serveur où votre base de données MongoDB est accessible.
