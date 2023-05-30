@@ -47,7 +47,7 @@ app.use(
 
 const apiLimiter = rateLimit({
 	windowMs: 1000 * 60, // Chaque minute
-	max: 30, // 30 requêtes chaque à cycle "windowMs" (ici 60 requêtes par minute);
+	max: 30, // 30 requêtes chaque à cycle "windowMs" (ici 30 requêtes par minute);
 	standardHeaders: true, // Support des headers standards
 	store: new MemoryStore(), // Le store pour enregistrer le compteur de requêtes
 	message: "Trop de requêtes API. Patientez une minute puis réessayez.", // Message d'erreur à faire parvenir
