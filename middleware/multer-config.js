@@ -1,7 +1,10 @@
 import multer from "multer";
+import fs from "fs"
 
 const storage = multer.diskStorage({
 	destination: (req, file, callback) => {
+		if (!fs.existsSync("./images"))
+			fs.mkdirSync("./images");
 		callback(null, "./images");
 	},
 	filename: (req, file, callback) => {

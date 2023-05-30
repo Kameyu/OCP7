@@ -63,7 +63,12 @@ export async function sendBook(req, res) {
 				message: "Nouveau livre enregistré avec succès !",
 			});
 	} catch (error) {
-		res.status(400).json(error);
+		// On supprime le fichier envoyé si une erreur survient
+		if (fs.existsSync("./images/" + req.file.filename)) {
+			fs.unlink("./images/" + req.file.filename, async () => {
+				res.status(400).json(error);
+			});
+		}
 	}
 }
 
@@ -79,7 +84,11 @@ export async function rateBook(req, res) {
 		const foundBook = await Book.findOne({ _id: req.params.id });
 
 		// Si l'utilisateur a déjà voté pour ce livre, on lui renvoie juste le livre trouvé
-		if (foundBook.ratings.find((rating) => rating.userId === req.auth.userId))
+		if (
+			foundBook.ratings.find(
+				(rating) => rating.userId === req.auth.userId
+			)
+		)
 			res.status(304).json(foundBook);
 		else {
 			let roundedAverage = req.body.rating;
@@ -89,7 +98,8 @@ export async function rateBook(req, res) {
 				grade: req.body.rating, // /!\ book: grade, body: rating /!\
 			});
 
-			if (foundBook.ratings.length > 1) { // Si > 1 c'est qu'il y avait déjà des notes avant l'ajout de celle-ci
+			if (foundBook.ratings.length > 1) {
+				// Si > 1 c'est qu'il y avait déjà des notes avant l'ajout de celle-ci
 				const ratings = foundBook.ratings.map((rating) => rating.grade); // On fait un tableau des notes
 				const sum = ratings.reduce((acc, cur) => acc + cur, 0); // On calcule la somme des notes
 				const average = sum / ratings.length; // Simple division pour calculer la moyenne
@@ -98,12 +108,13 @@ export async function rateBook(req, res) {
 
 			/*  On modifie averageRating après l'ajout de la dernière note
 				Si la note ajoutée est la seule, averageRating aura automatiquement la même valeur */
-			foundBook.averageRating = roundedAverage; 
+			foundBook.averageRating = roundedAverage;
 
 			const isEdited = await Book.updateOne(
-				{ _id: req.params.id }, foundBook
+				{ _id: req.params.id },
+				foundBook
 			);
-			
+
 			if (isEdited) res.status(200).json(foundBook);
 			else
 				res.status(500).json({
@@ -135,7 +146,7 @@ export async function editBook(req, res) {
 							...JSON.parse(req.body.book), // S'il y a une image, le body n'a pas la même forme
 							imageUrl: `${req.protocol}://${req.get(
 								"host"
-							)}/images/${req.file.filename}`,
+							)}/images/${req.file.filename}?f=webp&q=80`,
 					  }
 					: { ...req.body };
 
@@ -146,11 +157,24 @@ export async function editBook(req, res) {
 					{ ...requestedEdits }
 				);
 
-				if (isEdited)
-					res.status(200).json({
-						message: "Le livre a été modifié !",
-					});
-				else
+				if (isEdited) {
+					fs.unlink(
+						"./images/" +
+							path.basename(publishedBook.imageUrl).split("?")[0],
+						async () => {
+							if (isEdited) {
+								// Modification effectuée avec succès, et suppression de l'image
+								res.status(200).json({
+									message: "Le livre a été modifié !",
+								});
+							} else
+								res.status(500).json({
+									message:
+										"La ressource n'a pas pu être supprimée",
+								});
+						}
+					);
+				} else
 					res.status(500).json({
 						message: "Le livre n'a pas pu être modifié.",
 					});

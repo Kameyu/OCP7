@@ -33,27 +33,27 @@ app.use((req, res, next) => {
 	next();
 });
 
-const apiLimiter = rateLimit({
-	windowMs: 1000 * 60, // Chaque minute
-	max: 60, // 60 requêtes chaque à cycle "windowMs" (ici 60 requêtes par minute);
-	standardHeaders: true, // Support des headers standards
-	store: new MemoryStore(), // Le store pour enregistrer le compteur de requêtes
-	message: "Trop de requêtes API. Patientez une minute puis réessayez.", // Message d'erreur à faire parvenir
-});
-
-// set rate limit to the whole api
-app.use("/api", apiLimiter);
 app.use("/api/auth", authRouter);
 app.use("/api/books", booksRouter);
 app.use("/images", express.static(path.resolve("./images")));
 
-// Third party programs
+// Third party
 app.use(
 	"/images",
 	expressSharp({
 		imageAdapter: new FsAdapter(path.join(path.resolve("."), "images")),
 	})
 );
+
+const apiLimiter = rateLimit({
+	windowMs: 1000 * 60, // Chaque minute
+	max: 30, // 30 requêtes chaque à cycle "windowMs" (ici 60 requêtes par minute);
+	standardHeaders: true, // Support des headers standards
+	store: new MemoryStore(), // Le store pour enregistrer le compteur de requêtes
+	message: "Trop de requêtes API. Patientez une minute puis réessayez.", // Message d'erreur à faire parvenir
+});
+
+app.use("/api", apiLimiter);
 
 app.use(helmet());
 
