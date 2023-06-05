@@ -135,12 +135,14 @@ export async function editBook(req, res) {
 					"La ressource demandée est introuvable ou a été supprimée.",
 			});
 		else {
+			// Si le livre a été trouvé
 			if (publishedBook.userId != req.auth.userId)
 				res.status(403).json({
 					message:
 						"Vous n'avez pas la permission de modifier ce livre.",
 				});
 			else {
+				// Si l'utilisateur a la permission de modifier le livre (en est le publieur)
 				const requestedEdits = req.file
 					? {
 							...JSON.parse(req.body.book), // S'il y a une image, le body n'a pas la même forme
@@ -158,26 +160,18 @@ export async function editBook(req, res) {
 				);
 
 				if (isEdited) {
-					fs.unlink(
-						"./images/" +
-							path.basename(publishedBook.imageUrl).split("?")[0],
-						async () => {
-							if (isEdited) {
-								// Modification effectuée avec succès, et suppression de l'image
-								res.status(200).json({
-									message: "Le livre a été modifié !",
-								});
-							} else
-								res.status(500).json({
-									message:
-										"La ressource n'a pas pu être supprimée",
-								});
-						}
-					);
-				} else
+					req.file &&
+						fs.unlinkSync("./images/" +
+								path.basename(publishedBook.imageUrl).split("?")[0]);
+					res.status(200).json({
+						message:
+							"La ressource a été supprimée avec succès !",
+					});
+				} else {
 					res.status(500).json({
 						message: "Le livre n'a pas pu être modifié.",
 					});
+				}
 			}
 		}
 	} catch (error) {
